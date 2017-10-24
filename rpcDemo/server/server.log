@@ -1,9 +1,0 @@
-
-2017/10/24 17:29:07 server.go:73: accept ip :  127.0.0.1:40150
-2017/10/24 17:32:10 server.go:73: accept ip :  127.0.0.1:40416
-2017/10/24 17:38:08 server.go:73: accept ip :  127.0.0.1:40918
-2017/10/24 18:54:05 server.go:73: accept ip :  127.0.0.1:45780
-2017/10/24 19:23:50 server.go:91: accept ip :  127.0.0.1:47028
-2017/10/24 19:23:50 server.go:36: errors for authorizatio
-2017/10/24 19:24:34 server.go:91: accept ip :  127.0.0.1:47042
-2017/10/24 19:24:34 server.go:36: error for authorizatio

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
 	"net"
@@ -57,9 +58,21 @@ func Init() {
 	log.SetOutput(logFile)
 
 	//userTable init
+	userFile, err := os.OpenFile("./user.json", os.O_RDONLY, 0666)
+	if err != nil {
+		log.Fatal("OpenFile ERROR:", err)
+	}
+	decoder := json.NewDecoder(userFile)
+	user := User{}
 	userTable = make(map[string]string)
-	userTable["error"] = "error"
-	userTable["gao"] = "shaohua"
+	for decoder.More() {
+		err = decoder.Decode(&user)
+		if err != nil {
+			log.Fatal("confige file decode ERROR :", err)
+		}
+		userTable[user.Username] = user.Passwd
+	}
+
 }
 
 func main() {
