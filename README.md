@@ -1,2 +1,3 @@
 # Assignment
-this is my personal school assignment
+
+This is my personal assignment.
