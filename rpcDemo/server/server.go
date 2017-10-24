@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"net"
 	"net/rpc"
@@ -11,8 +12,8 @@ import (
 var userTable map[string]string
 
 type User struct {
-	username string
-	passwd   string
+	Username string
+	Passwd   string
 }
 
 type GetInfo int
@@ -20,13 +21,30 @@ type GetInfo int
 //rpc method
 func (t *GetInfo) GetServerCurrntTime(args *User, reply *time.Time) error {
 
-	*reply = time.Now().Local()
-	return nil
+	ok, tips := authorize(*args)
+	if ok {
+		*reply = time.Now().Local()
+		return nil
+	} else {
+		return errors.New(tips)
+	}
+
 }
 
-func authorize() bool {
+func authorize(u User) (bool, string) {
 
-	return true
+	log.Println(u.Username, "for authorizatio")
+
+	passwd, ok := userTable[u.Username]
+	if ok {
+		if passwd == u.Passwd {
+			return true, ""
+		} else {
+			return false, "wrong password!"
+		}
+	} else {
+		return false, u.Username + " does not exist!"
+	}
 }
 
 func Init() {
@@ -41,7 +59,7 @@ func Init() {
 	//userTable init
 	userTable = make(map[string]string)
 	userTable["error"] = "error"
-	userTable["gao"] = "shao"
+	userTable["gao"] = "shaohua"
 }
 
 func main() {
