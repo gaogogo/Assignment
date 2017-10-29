@@ -19,12 +19,14 @@ type User struct {
 
 type GetInfo int
 
+
 //rpc method
 func (t *GetInfo) GetServerCurrntTime(args *User, reply *time.Time) error {
 
 	ok, tips := authorize(*args)
 	if ok {
 		*reply = time.Now().Local()
+		//fmt.Println(*reply)
 		return nil
 	} else {
 		return errors.New(tips)
@@ -34,7 +36,7 @@ func (t *GetInfo) GetServerCurrntTime(args *User, reply *time.Time) error {
 
 func authorize(u User) (bool, string) {
 
-	log.Println(u.Username, "for authorizatio")
+	//log.Println(u.Username, "for authorizatio")
 
 	passwd, ok := userTable[u.Username]
 	if ok {
@@ -102,6 +104,6 @@ func main() {
 			continue
 		}
 		log.Println("accept ip : ", conn.RemoteAddr())
-		rpc.ServeConn(conn)
+		go rpc.ServeConn(conn)
 	}
 }
