@@ -1,0 +1,68 @@
+package preprocess;
+
+import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Reducer;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class PreprocessReducer extends Reducer<Text, Text, Text, NullWritable> {
+
+    private static final NullWritable NULL_WRITABLE = NullWritable.get();
+    private static final int MAX_SIZE = 1 << 15;
+
+    private List<Text> list;
+    private StringBuilder result;
+
+    private String getOutputKey(Text a, Text b, Text c){
+        return a.compareTo(b) > 0 ? (b.compareTo(c) > 0 ? (a.toString() + "->" + b.toString() + "->" + c.toString()) :
+                (a.compareTo(c) > 0 ? a.toString() + "->" + c.toString() + "->" + b.toString() :
+                        c.toString() + "->" + a.toString() + "->" + b.toString()) )
+                : (a.compareTo(c) > 0 ? (b.toString() + "->" + a.toString() + "->" + c.toString()) :
+                (b.compareTo(c) > 0 ? b.toString() + "->" + c.toString() + "->" + a.toString() :
+                c.toString() + "->" + b.toString() + "->" + a.toString()));
+    }
+
+    @Override
+    protected void setup(Context context) throws IOException, InterruptedException {
+        list = new ArrayList<Text>();
+        result = new StringBuilder();
+    }
+
+    @Override
+    protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+
+        for(Text value : values){
+            String []buffer = value.toString().split(" ");
+            for(String tmp : buffer){
+                Text temp = new Text(tmp);
+                if(!list.contains(temp))
+                    list.add(temp);
+            }
+        }
+
+        int i, j;
+        int listSize = list.size();
+        for(i = 0 ; i < listSize - 1; i++){
+            for(j = i+1; j < listSize; j++){
+                result.append(getOutputKey(key, list.get(i), list.get(j)) + "\n");
+                if(result.length() >= MAX_SIZE){
+                    result.setLength(result.length() - 1 );
+                    context.write(new Text(result.toString()), NULL_WRITABLE);
+                    result.setLength(0);
+                }
+            }
+        }
+        list.clear();
+    }
+
+    @Override
+    protected void cleanup(Context context) throws IOException, InterruptedException {
+        if(result.length() != 0) {
+            result.setLength(result.length() - 1);
+            context.write(new Text(result.toString()), NULL_WRITABLE);
+        }
+    }
+}
