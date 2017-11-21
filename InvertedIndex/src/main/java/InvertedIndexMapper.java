@@ -14,8 +14,8 @@ public class InvertedIndexMapper extends Mapper<LongWritable, Text, Text, IntWri
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
         FileSplit fileSplit = (FileSplit) context.getInputSplit();
-        String fileName = fileSplit.getPath().getName();
-        int index = fileName.indexOf(".");
+        String fileName = fileSplit.getPath().getName().toLowerCase();
+        int index = fileName.indexOf(".txt.");
         if (index > 0) {
             fileName = fileName.substring(0, index);
         }
